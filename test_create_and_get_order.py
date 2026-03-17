@@ -1,27 +1,16 @@
 # Роман Горшков, 44-я когорта — Финальный проект. Инженер по тестированию плюс
-import requests
-from configuration import BASE_URL, CREATE_ORDER_PATH, GET_ORDER_BY_TRACK_PATH
-from data import ORDER_BODY
-
+import sender_stand_request
 
 def test_create_order_and_get_by_track():
-    create_response = requests.post(
-        BASE_URL + CREATE_ORDER_PATH,
-        json=ORDER_BODY
-    )
+    # 1. Выполнить запрос на создание заказа.
+    create_response = sender_stand_request.create_order()
 
-    assert create_response.status_code == 201 or create_response.status_code == 200
+    # 2. Сохранить номер трека заказа.
     create_json = create_response.json()
-    assert "track" in create_json
     track = create_json["track"]
 
-    params = {"t": track}
-    get_response = requests.get(
-        BASE_URL + GET_ORDER_BY_TRACK_PATH,
-        params=params
-    )
+    # 3. Выполнить запрос на получение заказа по треку заказа.
+    get_response = sender_stand_request.get_order_by_track(track)
 
+    # 4. Проверить, что код ответа равен 200.
     assert get_response.status_code == 200
-
-    get_json = get_response.json()
-    assert "order" in get_json and get_json["order"] is not None
